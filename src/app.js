@@ -55,10 +55,10 @@ app.get('/products', (req, res) => {
         });
     }
 
-    console.log(req.query.search)
+    console.log(req.query.search);
     res.send({
         products: [req.query.search]
-    })
+    });
 });
 
 app.get('/weather', (req, res) => {
@@ -78,10 +78,6 @@ app.get('/weather', (req, res) => {
             }
             response.location = location;
             res.send(response);
-
-            // console.log(location);
-            // console.log('Сейчас на улице ' + chalk.red(temperature + ' C°') + ', шанс дождя: ' + chalk.red(chanceOfRain + '%'));
-            // console.log(summary);
         });
     });
 });
