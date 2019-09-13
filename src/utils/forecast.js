@@ -12,7 +12,9 @@ const forecast = (latitude, longitude, callback) => {
             callback(undefined, {
                 summary: responseBody.daily.data[0].summary,
                 temperature: responseBody.currently.temperature,
-                chanceOfRain: responseBody.currently.precipProbability
+                chanceOfRain: responseBody.currently.precipProbability,
+                temperatureMax: responseBody.daily.data[0].temperatureMax,
+                temperatureMin: responseBody.daily.data[0].temperatureMin
             });
         }
     });
