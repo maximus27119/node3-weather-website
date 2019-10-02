@@ -3,6 +3,8 @@ const express = require('express');
 const hbs = require('hbs');
 const geocode = require('./utils/geocode');
 const forecast = require('./utils/forecast');
+const dataModule = require('./utils/dataModule');
+const getDate = require('./utils/getDate');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -39,14 +41,14 @@ app.get('/help/*', (req, res) => {
         title: "Error",
         message: "Help article not found",
         name: "Maxim Usyk"
-    })
+    });
 });
 
 app.get('/about', (req, res) => {
     res.render('about', {
         title: "About page",
         name: "Maxim Usyk"
-    })
+    });
 });
 
 app.get('/products', (req, res) => {
@@ -68,6 +70,22 @@ app.get('/weather', (req, res) => {
             error: "You must provide an address!"
         });
     }
+
+    let date = getDate();
+    if(dataModule.isDataExists('./data/' + date)){
+        if(dataModule.isDataExists('./data/' + date + '/' + req.query.address)){
+            if(dataModule.isDataExists('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json')){
+                let dataFromJson = dataModule.loadData('./data/' + date + '/' + req.query.address);
+                return res.send(dataFromJson);
+            }
+        }else{
+            dataModule.createDirectory('./data/' + date + '/' + req.query.address);
+        }
+    }else{
+        dataModule.createDirectory('./data/' + date + '/' + req.query.address);
+    }
+
+    
     geocode(req.query.address, (error, {latitude, longitude, location} = {}) => {
         if(error){
             return res.send({ error });
@@ -78,6 +96,9 @@ app.get('/weather', (req, res) => {
                 return res.send({ error });
             }
             response.location = location;
+
+            dataModule.saveData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json', JSON.parse(response));
+
             res.send(response);
         });
     });
