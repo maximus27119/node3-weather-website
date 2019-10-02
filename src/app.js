@@ -72,17 +72,22 @@ app.get('/weather', (req, res) => {
     }
 
     let date = getDate();
-    if(dataModule.isDataExists('./data/' + date)){
-        if(dataModule.isDataExists('./data/' + date + '/' + req.query.address)){
-            if(dataModule.isDataExists('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json')){
-                let dataFromJson = dataModule.loadData('./data/' + date + '/' + req.query.address);
+    if(dataModule.isDataExists('./data/' + date)){// Проверка, существует ли папка с датой
+        if(dataModule.isDataExists('./data/' + date + '/' + req.query.address)){ // Проверка на папку с городом
+            if(dataModule.isDataExists('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json')){ // Проверка на файл
+                let dataFromJson = JSON.parse(dataModule.loadData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json'));
+                console.log('Loaded from database: ' + req.query.address + ' city');
                 return res.send(dataFromJson);
             }
         }else{
-            dataModule.createDirectory('./data/' + date + '/' + req.query.address);
+            // dataModule.createDirectory('./data/');
+            // dataModule.createDirectory('./data/' + date + '/');
+            // dataModule.createDirectory('./data/' + date + '/' + req.query.address + '/');
         }
     }else{
-        dataModule.createDirectory('./data/' + date + '/' + req.query.address);
+        // dataModule.createDirectory('./data/');
+        dataModule.createDirectory('./data/' + date + '/');
+        // dataModule.createDirectory('./data/' + date + '/' + req.query.address + '/');
     }
 
     
@@ -96,8 +101,9 @@ app.get('/weather', (req, res) => {
                 return res.send({ error });
             }
             response.location = location;
-
-            dataModule.saveData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json', JSON.parse(response));
+            dataModule.createDirectory('./data/' + date + '/' + req.query.address + '/');
+            dataModule.saveData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json', JSON.stringify(response));
+            console.log('Loaded from darksky: ' + req.query.address + ' city');
 
             res.send(response);
         });
