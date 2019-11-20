@@ -3,8 +3,6 @@ const express = require('express');
 const hbs = require('hbs');
 const geocode = require('./utils/geocode');
 const forecast = require('./utils/forecast');
-const dataModule = require('./utils/dataModule');
-const getDate = require('./utils/getDate');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -70,20 +68,6 @@ app.get('/weather', (req, res) => {
             error: "You must provide an address!"
         });
     }
-
-    let date = getDate();
-    if(dataModule.isDataExists('./data/' + date)){// Проверка, существует ли папка с датой
-        if(dataModule.isDataExists('./data/' + date + '/' + req.query.address)){ // Проверка на папку с городом
-            if(dataModule.isDataExists('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json')){ // Проверка на файл
-                let dataFromJson = JSON.parse(dataModule.loadData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json'));
-                return res.send(dataFromJson);
-            }
-        }
-    }else{
-        dataModule.createDirectory('./data/' + date + '/');
-    }
-
-    
     geocode(req.query.address, (error, {latitude, longitude, location} = {}) => {
         if(error){
             return res.send({ error });
@@ -94,8 +78,6 @@ app.get('/weather', (req, res) => {
                 return res.send({ error });
             }
             response.location = location;
-            dataModule.createDirectory('./data/' + date + '/' + req.query.address + '/');
-            dataModule.saveData('./data/' + date + '/' + req.query.address + '/' + req.query.address + '.json', JSON.stringify(response));
             res.send(response);
         });
     });
